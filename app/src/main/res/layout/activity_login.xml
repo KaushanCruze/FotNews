@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/black"
+        android:paddingHorizontal="25dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@android:color/black">
+
+            <!-- Logo Image -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="80dp"
+                android:layout_marginBottom="50dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/logo"
+                app:shapeAppearanceOverlay="@style/cr50" />
+
+            <!-- Email Field -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="Email*"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundColor="@android:color/black"
+                    app:boxStrokeColor="#FFFFFF"
+                    app:boxStrokeWidth="1dp"
+                    app:shapeAppearance="@style/TextInputShapeAppearance"
+                    app:hintEnabled="false">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/email"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:inputType="textEmailAddress"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:background="@drawable/edit_text_border"
+                        android:paddingStart="12dp"/>
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <!-- Password Field -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="Password*"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundColor="@android:color/black"
+                    app:boxStrokeColor="#FFFFFF"
+                    app:boxStrokeWidth="1dp"
+                    app:shapeAppearance="@style/TextInputShapeAppearance"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="#FFFFFF"
+                    app:hintEnabled="false">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/cpassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:inputType="textPassword"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:background="@drawable/edit_text_border"
+                        android:paddingStart="12dp"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Remember Me & Forgot Password -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/rememberme"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Remember me"
+                        android:textColor="#FFFFFF"
+                        android:buttonTint="#FFFFFF" />
+
+                    <TextView
+                        android:id="@+id/forgotpass"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Forgot the password?"
+                        android:textAlignment="textEnd"
+                        android:textColor="#5890FF"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Login Button -->
+
+            <!-- Sign Up Link -->
+            <LinearLayout
+                android:id="@+id/login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="200dp"
+                android:background="@drawable/log_3"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="13dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Login"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Don't have an account?"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/signup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:clickable="true"
+                    android:text="Sign Up"
+                    android:textColor="#2C82F1"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

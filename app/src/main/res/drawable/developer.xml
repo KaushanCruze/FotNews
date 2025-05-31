@@ -1,0 +1,9 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+android:shape="rectangle">
+
+<!-- Background color (Facebook blue) -->
+<solid android:color="#1877F2" />
+
+<!-- Rounded corners -->
+
+</shape>
