@@ -1,15 +1,17 @@
 package com.example.fotnews;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.util.Log;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.FirebaseApp;
@@ -25,7 +27,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); // your main layout XML
 
         initializeFirebase();
         initializeViews();
@@ -51,46 +53,107 @@ public class HomeActivity extends AppCompatActivity {
         firestore.collection("news")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        showToast("No news found.");
+                        return;
+                    }
+                    // Clear any existing dynamic cards, keeping your static ones intact
+                    // Or if you want to clear all:
+                    // newsContainer.removeAllViews();
+
                     for (QueryDocumentSnapshot document : querySnapshot) {
-                        displayNewsArticle(document);
+                        String title = document.getString("title");
+                        String date = document.getString("date");
+                        String content = document.getString("content");
+                        String imageUrl = document.getString("imageUrl");
+                        addNewsCard(title, date, content, imageUrl);
                     }
                 })
-                .addOnFailureListener(e ->
-                        showToast("Failed to load news"));
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error loading news", e);
+                    showToast("Failed to load news");
+                });
     }
 
-    private void displayNewsArticle(QueryDocumentSnapshot document) {
-        String title = document.getString("title");
-        String date = document.getString("date");
-        String content = document.getString("content");
-        String imageUrl = document.getString("imageUrl");
+    // Dynamically create and add news cards matching your XML card style
+    private void addNewsCard(String title, String date, String content, String imageUrl) {
+        // Create CardView
+        CardView cardView = new CardView(this);
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        cardParams.setMargins(16, 16, 16, 16);
+        cardView.setLayoutParams(cardParams);
+        cardView.setRadius(12f);
+        cardView.setCardElevation(6f);
+        cardView.setUseCompatPadding(true);
 
-        createNewsCard(title, date, content, imageUrl);
-    }
+        // Inner LinearLayout
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setPadding(16, 16, 16, 16);
+        linearLayout.setBackgroundColor(Color.WHITE);
 
-    private void createNewsCard(String title, String date, String content, String imageUrl) {
-        View cardView = LayoutInflater.from(this).inflate(R.layout.news_card, newsContainer, false);
-
-        TextView titleView = cardView.findViewById(R.id.newsTitle);
-        TextView dateView = cardView.findViewById(R.id.newsDate);
-        TextView contentView = cardView.findViewById(R.id.newsContent);
-        ImageView imageView = cardView.findViewById(R.id.imageView);
-
+        // Title TextView
+        TextView titleView = new TextView(this);
         titleView.setText(title);
+        titleView.setTextSize(18f);
+        titleView.setTextColor(Color.BLACK);
+        titleView.setTypeface(null, android.graphics.Typeface.BOLD);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParams.bottomMargin = 8;
+        titleView.setLayoutParams(titleParams);
+
+        // Date TextView
+        TextView dateView = new TextView(this);
         dateView.setText(date);
-        contentView.setText(content);
+        dateView.setTextSize(12f);
+        dateView.setTextColor(Color.parseColor("#666666"));
+        LinearLayout.LayoutParams dateParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        dateParams.bottomMargin = 8;
+        dateView.setLayoutParams(dateParams);
+
+        // ImageView
+        ImageView imageView = new ImageView(this);
+        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                400); // approx 200dp in pixels ~ use 400px for a crisp image
+        imageParams.bottomMargin = 8;
+        imageView.setLayoutParams(imageParams);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(this).load(imageUrl).into(imageView);
         } else {
-            imageView.setVisibility(View.GONE);
+            imageView.setVisibility(ImageView.GONE);
         }
 
+        // Content TextView
+        TextView contentView = new TextView(this);
+        contentView.setText(content);
+        contentView.setTextSize(14f);
+        contentView.setTextColor(Color.parseColor("#333333"));
+
+        // Add all views to linear layout
+        linearLayout.addView(titleView);
+        linearLayout.addView(dateView);
+        if (imageView.getVisibility() != ImageView.GONE) {
+            linearLayout.addView(imageView);
+        }
+        linearLayout.addView(contentView);
+
+        // Add linear layout to cardView
+        cardView.addView(linearLayout);
+
+        // Add cardView to newsContainer
         newsContainer.addView(cardView);
     }
 
     private void navigateToSettings() {
-
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
