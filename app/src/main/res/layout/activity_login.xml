@@ -134,12 +134,10 @@
             </LinearLayout>
 
             <!-- Login Button -->
-
-            <!-- Sign Up Link -->
             <LinearLayout
                 android:id="@+id/login"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_marginBottom="200dp"
                 android:background="@drawable/log_3"
                 android:clickable="true"
@@ -153,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:text="Login"
                     android:textColor="#FFFFFF"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
 

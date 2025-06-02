@@ -1,22 +1,19 @@
 package com.example.fotnews;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.firebase.auth.FirebaseAuth;
-
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -27,157 +24,126 @@ import java.util.Map;
 public class SettingsActivity extends AppCompatActivity {
 
     private ImageView backImageView;
+    private TextView emailTextView, usernameTextView;
     private ListenerRegistration userInfoListener;
-
-    private TextView emailTextView,usernameTextView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
-        // Initialize back image
+        // Initialize Views
         backImageView = findViewById(R.id.back);
-
-        // Handle back navigation
-        backImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Go back to previous activity (MainActivity)
-                finish(); // This closes the current activity and goes back
-            }
-        });
         emailTextView = findViewById(R.id.email2);
         usernameTextView = findViewById(R.id.username1);
+        View devInfo = findViewById(R.id.dev);
+        LinearLayout signOutLayout = findViewById(R.id.signout);
+        LinearLayout editInfoLayout = findViewById(R.id.edit_info);
 
+        // Back navigation
+        backImageView.setOnClickListener(v -> finish());
+
+        // Navigate to Developer Info
+        devInfo.setOnClickListener(v -> {
+            Intent intent = new Intent(SettingsActivity.this, DevActivity.class);
+            startActivity(intent);
+        });
+
+        // Sign out - show confirmation dialog instead of immediate sign out
+        signOutLayout.setOnClickListener(v -> showSignOutDialog());
+
+        // Edit info
+        editInfoLayout.setOnClickListener(v -> showEditInfoDialog());
+
+        // Display current user info
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         if (user != null) {
             String email = user.getEmail();
-            String name = user.getDisplayName(); // May be null if not set
+            String name = user.getDisplayName(); // Might be null
 
-            emailTextView.setText("Email: "+email);
-            usernameTextView.setText(name != null ? "Username: "+name : "No username");
+            emailTextView.setText("Email: " + (email != null ? email : "-"));
+            usernameTextView.setText(name != null ? "Username: " + name : "Username: -");
         } else {
             emailTextView.setText("Not logged in");
             usernameTextView.setText("-");
         }
-        View devInfo = findViewById(R.id.dev);
-
-
-        devInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(SettingsActivity.this, DevActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        LinearLayout signOutLayout = findViewById(R.id.signout);
-        signOutLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOutUser();
-            }
-        });
-
-        LinearLayout editInfo = findViewById(R.id.edit_info);
-        editInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showEditInfoDialog();
-            }
-        });
-
-
     }
 
-
-// Inside your activity class:
-
-    private void signOutUser() {
-        FirebaseAuth.getInstance().signOut();
-        // After sign out, redirect user to login screen
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear back stack
-        startActivity(intent);
-        finish();
-    }
-    private void showEditInfoDialog() {
-        // Inflate your dialog layout
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View dialogView = inflater.inflate(R.layout.activity_edit, null);
-
-        // Find views inside the dialog if you want to pre-fill or listen
-        EditText editUsername = dialogView.findViewById(R.id.editUsername);
-
-
-        // Optional: pre-fill username/email from your data source
-
-        // Build AlertDialog
+    // New method to show the sign-out confirmation dialog using your custom XML layout
+    private void showSignOutDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(dialogView)
-
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Handle saving updated info here
-                        String newUsername = editUsername.getText().toString().trim();
-
-
-                        // TODO: Validate and update your user info here
-                        updateUser(newUsername);
-//
-                    }
-                })
-                .setNegativeButton("Cancel", null);
+        View dialogView = getLayoutInflater().inflate(R.layout.signout_confirm, null); // <-- your dialog XML filename here
+        builder.setView(dialogView);
 
         AlertDialog dialog = builder.create();
 
+        LinearLayout btnYes = dialogView.findViewById(R.id.btnYes);
+        LinearLayout btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+        btnYes.setOnClickListener(v -> {
+            // Sign out user and go to LoginActivity
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            dialog.dismiss();
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
         dialog.show();
     }
 
+    private void showEditInfoDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.activity_edit, null);
+        builder.setView(dialogView);
+
+        EditText editUsername = dialogView.findViewById(R.id.editUsername);
+        LinearLayout btnOk = dialogView.findViewById(R.id.btn_edit_Confirm);
+        LinearLayout btnCancel = dialogView.findViewById(R.id.btn_edit_deny);
+
+        AlertDialog dialog = builder.create();
+
+        btnOk.setOnClickListener(v -> {
+            String newUsername = editUsername.getText().toString().trim();
+            updateUser(newUsername);
+            dialog.dismiss();
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        dialog.show();
+    }
+
+
     private void updateUser(String username) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         if (user == null) {
-            String msg = "User not logged in";
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-//            Log.d("UserUpdate", msg);
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (username.isEmpty()) {
+            Toast.makeText(this, "Username cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String uid = user.getUid();
         Map<String, Object> updates = new HashMap<>();
-
-        if (!username.isEmpty()) {
-            updates.put("username", username);
-        }
-
-        if (updates.isEmpty()) {
-            String msg = "No changes to update";
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-//            Log.d("UserUpdate", msg);
-            return;
-        }
+        updates.put("username", username);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").document(uid)
                 .update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    String msg = "Username updated successfully";
-                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-//                    Log.d("UserUpdate", msg);
-                })
-                .addOnFailureListener(e -> {
-                    String msg = "Failed to update username: " + e.getMessage();
-                    Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-//                    Log.e("UserUpdate", msg);
-                });
+                .addOnSuccessListener(aVoid ->
+                        Toast.makeText(this, "Username updated successfully", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to update: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
-
 
     @Override
     protected void onStart() {
@@ -190,7 +156,7 @@ public class SettingsActivity extends AppCompatActivity {
                     .document(user.getUid())
                     .addSnapshotListener((documentSnapshot, error) -> {
                         if (error != null) {
-                            Toast.makeText(this, "Listen failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Failed to listen to user data.", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -204,6 +170,7 @@ public class SettingsActivity extends AppCompatActivity {
                     });
         }
     }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -211,7 +178,4 @@ public class SettingsActivity extends AppCompatActivity {
             userInfoListener.remove();
         }
     }
-
 }
-
-
